@@ -4,47 +4,44 @@ const axios = require("axios");
 require("dotenv").load();
 
 app.get("/recipes", async (req, res) => {
-  try {
-    const url = `http://www.recipepuppy.com/api/?i=${getRequestIngredients(
-      req
-    )}`;
-    const response = await axios.get(url);
+  const url = `http://www.recipepuppy.com/api/?i=${getRequestIngredients(req)}`;
+  const response = await axios.get(url);
 
-    if (response.status !== 200) {
-      console.log(`Error: ${data.status} `);
-      return;
-    }
-
-    Promise.all(
-      response.data.results.map(async recipe => {
-        return await axios.get(
-          `http://api.giphy.com/v1/gifs/feqkVgjJpYtjy?api_key=${
-            process.env.API_KEY
-          }`
-        );
-      })
-    ).then(gifs => {
-      gifs.map(gif => {
-        console.log(gif.data.data.url);
-      });
-    });
-
-    // const recipes = () => {
-    //   return {
-    //     title: recipe.title,
-    //     ingredients: recipe.ingredients,
-    //     link: recipe.href,
-    //     gif: gif
-    //   };
-    // };
-
-    // console.log(gifs);
-  } catch (err) {
-    console.log(err);
+  if (response.status !== 200) {
+    console.log(`Error: ${data.status} `);
+    return;
   }
+
+  const recipes = response.data.results;
+
+  const recipesResult = await Promise.all(
+    recipes.map(async recipe => {
+      const gif = await getGif(recipe.title);
+      return {
+        title: recipe.title,
+        ingredients: recipe.ingredients,
+        link: recipe.href,
+        gif: gif.url
+      };
+    })
+  );
+
+  console.log(recipesResult);
 });
 
-const getRequestIngredients = () => {
+const getGif = async title => {
+  const gifData = await axios.get(
+    `http://api.giphy.com/v1/gifs/search?q=${title}&api_key=${
+      process.env.API_KEY
+    }&limit=1`
+  );
+
+  const gifArray = gifData.data.data;
+
+  return gifArray.length > 0 ? gifArray[0] : "";
+};
+
+const getRequestIngredients = req => {
   return "onions";
 };
 
