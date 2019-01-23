@@ -4,7 +4,7 @@ const axios = require("axios");
 require("dotenv").load();
 
 app.get("/recipes", async (req, res) => {
-  const url = `http://www.recipepuppy.com/api/?i=${getRequestIngredients(req)}`;
+  const url = `http://www.recipepuppy.com/api/?i=${req.query.i}`;
   const response = await axios.get(url);
 
   if (response.status !== 200) {
@@ -26,13 +26,13 @@ app.get("/recipes", async (req, res) => {
     })
   );
 
-  console.log(recipesResult);
+  res.send(recipesResult);
 });
 
 const getGif = async title => {
   const gifData = await axios.get(
     `http://api.giphy.com/v1/gifs/search?q=${title}&api_key=${
-      process.env.API_KEY
+    process.env.API_KEY
     }&limit=1`
   );
 
@@ -41,8 +41,8 @@ const getGif = async title => {
   return gifArray.length > 0 ? gifArray[0] : "";
 };
 
-const getRequestIngredients = req => {
-  return "onions";
+const getRequestIngredients = requestIngredients => {
+  return requestIngredients.split(',');
 };
 
 app.listen(3000);
