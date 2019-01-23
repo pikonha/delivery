@@ -19,7 +19,7 @@ app.get("/recipes", async (req, res) => {
       const gif = await getGif(recipe.title);
       return {
         title: recipe.title,
-        ingredients: recipe.ingredients,
+        ingredients: sortIngredients(recipe.ingredients),
         link: recipe.href,
         gif: gif.url
       };
@@ -41,8 +41,8 @@ const getGif = async title => {
   return gifArray.length > 0 ? gifArray[0] : "";
 };
 
-const getRequestIngredients = requestIngredients => {
-  return requestIngredients.split(',');
+const sortIngredients = ingredients => {
+  return ingredients.split(',').sort((a, b) => a.trim().localeCompare(b.trim()));
 };
 
 app.listen(3000);
