@@ -1,14 +1,15 @@
-const express = require("express");
-const app = express();
-const axios = require("axios");
+'use strict'
+
+const app = require("express")();
+const giphy = require("./3rd_party/giphy")
+const puppet = require("./3rd_party/recipePuppet")
 require("dotenv").load();
 
 app.get("/recipes", async (req, res) => {
-  const url = `http://www.recipepuppy.com/api/?i=${req.query.i}`;
-  const response = await axios.get(url);
+  const response = await puppet.getRecipe(req.query.i);
 
   if (response.status !== 200) {
-    console.log(`Error: ${data.status} `);
+    res.send(`Error: Recipe Puppy is down. Please try again later.`);
     return;
   }
 
@@ -16,7 +17,7 @@ app.get("/recipes", async (req, res) => {
 
   const recipesResult = await Promise.all(
     recipes.map(async recipe => {
-      const gif = await getGif(recipe.title);
+      const gif = await giphy.getGif(recipe.title);
       return {
         title: recipe.title,
         ingredients: sortIngredients(recipe.ingredients),
@@ -28,18 +29,6 @@ app.get("/recipes", async (req, res) => {
 
   res.send(recipesResult);
 });
-
-const getGif = async title => {
-  const gifData = await axios.get(
-    `http://api.giphy.com/v1/gifs/search?q=${title}&api_key=${
-    process.env.API_KEY
-    }&limit=1`
-  );
-
-  const gifArray = gifData.data.data;
-
-  return gifArray.length > 0 ? gifArray[0] : "";
-};
 
 const sortIngredients = ingredients => {
   return ingredients.split(',').sort((a, b) => a.trim().localeCompare(b.trim()));
