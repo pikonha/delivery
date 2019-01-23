@@ -1,20 +1,36 @@
-const express = require('express')
-const app = express()
-const axios = require('axios')
-require('dotenv').load()
+const express = require("express");
+const app = express();
+const axios = require("axios");
+require("dotenv").load();
 
-// app.use(express.json())
-
-app.get('/', async (req, res) => {
+app.get("/recipes", async (req, res) => {
   try {
-    const reciepe = await axios.get(`http://www.recipepuppy.com/api/?i=`)
-    const giph = await axios.get("http://api.giphy.com/v1/gifs/search?q=ryan+gosling&api_key=YOUR_API_KEY&limit=5")
-    res.send()
+    const url = `http://www.recipepuppy.com/api/?i=${getRequestIngredients(
+      req
+    )}`;
+    const response = await axios.get(url);
 
+    if (response.status !== 200) {
+      console.log(`Error: ${data.status} `);
+      return;
+    }
+
+    const recipes = response.data.results.map(recipe => {
+      return {
+        title: recipe.title,
+        ingredients: recipe.ingredients,
+        link: recipe.href
+      };
+    });
+
+    console.log(recipes);
   } catch (err) {
-    console.log(err)
+    console.log(err);
   }
-})
+});
 
+function getRequestIngredients() {
+  return "onions";
+}
 
-app.listen(3000, console.log("server listenning"))
+app.listen(3000);
