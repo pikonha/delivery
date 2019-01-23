@@ -15,22 +15,37 @@ app.get("/recipes", async (req, res) => {
       return;
     }
 
-    const recipes = response.data.results.map(recipe => {
-      return {
-        title: recipe.title,
-        ingredients: recipe.ingredients,
-        link: recipe.href
-      };
+    Promise.all(
+      response.data.results.map(async recipe => {
+        return await axios.get(
+          `http://api.giphy.com/v1/gifs/feqkVgjJpYtjy?api_key=${
+            process.env.API_KEY
+          }`
+        );
+      })
+    ).then(gifs => {
+      gifs.map(gif => {
+        console.log(gif.data.data.url);
+      });
     });
 
-    console.log(recipes);
+    // const recipes = () => {
+    //   return {
+    //     title: recipe.title,
+    //     ingredients: recipe.ingredients,
+    //     link: recipe.href,
+    //     gif: gif
+    //   };
+    // };
+
+    // console.log(gifs);
   } catch (err) {
     console.log(err);
   }
 });
 
-function getRequestIngredients() {
+const getRequestIngredients = () => {
   return "onions";
-}
+};
 
 app.listen(3000);
